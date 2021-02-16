@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 
 import sys 
 sys.path.insert(0, './Documents/Uni/ML')
-from spheres import shpere_generator
+from spheres_JJ import sphere_generator
 
 class PointNetCls(nn.Module):
     def __init__(self, k=16):
@@ -59,15 +59,29 @@ class PointNetCls(nn.Module):
 
         x = F.relu(self.bn6(self.dropout(x)))
         return F.log_softmax(x, dim=1)
-   
+    
+
+
 ###########################################################    
 # Training
+# Data generation 
 nclouds = 100
 npoints = 100
 
-# The point clouds
+# Generate uniform
+uniform = torch.rand(nclouds, npoints, 1)
+
+# Generate normals with mean in U[0, 1] and covaraince in U[0, 0.1]
+means = torch.rand(nclouds)
+covs = torch.rand(nclouds)*0.1
 normal = torch.randn(nclouds, npoints, 1)
-uniform = torch.rand(nclouds, npoints, 1) - 0.5
+for i in range(nclouds):
+    normal[i, :, 0] = normal[i, :, 0]*covs[i] + means[i]
+    # to those smaller than 0 I add 1
+    (normal[i, :, 0])[normal[i, :, 0]<0] = 1 + (normal[i, :, 0])[normal[i, :, 0]<0]
+    # to those bigger than 1 I substract 1
+    (normal[i, :, 0])[normal[i, :, 0]>1] = -1 + (normal[i, :, 0])[normal[i, :, 0]>1]
+ 
 trainset = torch.cat((normal, uniform))
 
 # Labels
@@ -83,12 +97,23 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=4,
 #########################################################
 # Testing clouds
 
-ncloudstest = 20
+ncloudstest = 50
 npointstest = 100
 
-# The point clouds
+# Generate uniform
+uniformtest = torch.rand(ncloudstest, npointstest, 1)
+
+# Generate normals with mean in U[0, 1] and covaraince in U[0, 0.1]
+meanstest = torch.rand(ncloudstest)
+covstest = torch.rand(ncloudstest)*0.1
 normaltest = torch.randn(ncloudstest, npointstest, 1)
-uniformtest = torch.rand(ncloudstest, npointstest, 1) - 0.5
+for i in range(ncloudstest):
+    normaltest[i, :, 0] = normaltest[i, :, 0]*covstest[i] + meanstest[i]
+    # to those smaller than 0 I add 1
+    (normaltest[i, :, 0])[normaltest[i, :, 0]<0] = 1 + (normaltest[i, :, 0])[normaltest[i, :, 0]<0]
+    # to those bigger than 1 I substract 1
+    (normaltest[i, :, 0])[normaltest[i, :, 0]>1] = -1 + (normaltest[i, :, 0])[normaltest[i, :, 0]>1]
+
 testset = torch.cat((normaltest, uniformtest))
 
 # Labels
@@ -111,7 +136,7 @@ net = PointNetCls(k=2)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(net.parameters(), lr=0.001)
 
-nepochs = 20
+nepochs = 10
 
 train_acc = np.zeros(nepochs)
 test_acc = np.zeros(nepochs)
@@ -163,7 +188,9 @@ plt.plot(x, test_acc, label='Test accuracy')
 plt.legend()
 plt.xlabel('epoch')
 plt.ylabel('accuracy')
-plt.grid()
+#plt.minorticks_on()
+plt.xticks(x)
+plt.grid(True, which='both')
 plt.show()
 
 
