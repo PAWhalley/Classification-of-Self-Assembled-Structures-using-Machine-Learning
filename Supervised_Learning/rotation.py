@@ -37,3 +37,25 @@ def rotate_point_cloud(batch_data):
         rotated_data[k] = np.concatenate((rotated_pc, batch_data[k,:,3:]), axis=1)
 
     return torch.tensor(rotated_data)
+
+
+def LOP(spheres, s):
+    '''
+    Takes an array of spheres and returns something similar to the hyperuniformity of each sphere.
+    Can be thought of as the variance of the number of points in a disk of radius s on the 
+    suface of the sphere.
+    '''
+    LOP = np.array([])
+    for sphere in spheres:
+        #print(sphere)
+        ns = np.array([])
+        count = 0
+        for x in sphere:
+            for y in sphere:
+                if np.linalg.norm(x-y) < s:
+                    count += 1
+            ns = np.append(ns, count)
+            count = 0
+        ns2 = ns ** 2
+        LOP = np.append(LOP, np.average(ns2) - np.average(ns) ** 2)
+    return LOP
