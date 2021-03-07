@@ -206,3 +206,38 @@ with torch.no_grad():
 
 print('Accuracy of the network on the test point clouds: %d %%' % (
     100 * correct / total))
+
+
+# Confusion matrix
+y_pred = []
+y_true = []
+
+# iterate over test data
+for inputs, labels in testloader:
+        output = net(inputs) # Feed Network
+
+        output = (torch.max(torch.exp(output), 1)[1]).data.cpu().numpy()
+        y_pred.extend(output) # Save Prediction
+        
+        labels = labels.data.cpu().numpy()
+        y_true.extend(labels) # Save Truth
+
+# classes
+classes = ('Uniform', 'Normal')
+
+# Build confusion matrix
+cf_matrix = confusion_matrix(y_true, y_pred)
+#cf_matrix = cf_matrix/100
+df_cm = pd.DataFrame(cf_matrix/np.sum(cf_matrix) *1, index = [i for i in classes],
+                     columns = [i for i in classes])
+
+# plot
+sn.set(font_scale=2)
+plt.figure(figsize = (5,4))
+sn.heatmap(df_cm, annot=True,cbar=False,linewidths=1,linecolor='black',cmap=ListedColormap(['white']))
+plt.xlabel('True classes')
+plt.ylabel('Predicted classes') 
+plt.title('Accuracy Matrix')
+#plt.savefig('output.png')
+plt.show()
+
