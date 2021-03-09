@@ -13,7 +13,9 @@ def rotate_point_cloud(batch_data):
     """
     rotated_data = np.zeros(batch_data.shape, dtype=np.float32)
     for k in range(batch_data.shape[0]):
-        angles = np.random.uniform(size=(3)) * 2 * np.pi
+        #angles = np.random.uniform(size=(3)) * 2 * np.pi
+        angles = [np.arccos(1-2*np.random.uniform())]
+        angles[1:] = np.random.uniform(size=(2)) * 2 * np.pi
         cosval = np.cos(angles)
         sinval = np.sin(angles)
 
