@@ -11,7 +11,7 @@ def rotate_point_cloud2(batch_data):
         Return:
           BxNx3 array, rotated batch of point clouds
     """
-    rotated_data = np.zeros(batch_data.shape, dtype=np.float32)
+    #rotated_data = np.zeros(batch_data.shape, dtype=np.float32)
     for k in range(batch_data.shape[0]):
         angles = [np.arccos(1-2*np.random.uniform())]
         angles[1:] = np.random.uniform(size=(2)) * 2 * np.pi
@@ -67,13 +67,12 @@ def uniform_spherical_distribution(N):
         phi = k * inc 
         pts.append([np.cos(phi)*r, y, np.sin(phi)*r])   
     return pts
-
-
+    
+"""
+Rotates the pointcloud uniformally - PW.
+This is the one we should use
+"""
 def rotate_point_cloud(batch_data):
-	'''
-	Rotates the pointcloud uniformally - PW.
-	This is the one we should use
-	'''
     rotated_data = np.zeros(batch_data.shape, dtype=np.float32)
     for k in range(batch_data.shape[0]):
         overall_rot = random_rotation_matrix()
@@ -83,10 +82,10 @@ def rotate_point_cloud(batch_data):
 
     return torch.tensor(rotated_data)
 
+"""
+Creates rotation matrix - PW
+"""
 def random_rotation_matrix():
-	'''
-	Creates rotation matrix - PW
-	'''
     theta = np.arccos(2*np.random.uniform(low = 0,high = 1)-1)
     phi = np.random.uniform(low = 0,high = 2*np.pi)
     u = np.array([np.sin(theta)*np.cos(phi),np.sin(theta)*np.sin(phi),np.cos(theta)])
@@ -102,3 +101,5 @@ def random_rotation_matrix():
     A[2][1] = u[2]*u[1]*(1-np.cos(theta)) + u[0]*np.sin(theta)
     A[2][2] = np.cos(theta) + (u[2]**2)*(1-np.cos(theta))
     return A
+
+
