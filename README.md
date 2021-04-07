@@ -3,3 +3,6 @@ In molecular dynamic simulations linking the microscopic shape of a cluster to t
 In this repository we have method that explore how machine learning, both supervised and unsupervised, can be used to faster compute known order parameters, avoiding the direct (and expensive) formulaic approach and also to devise new order parameters (extract features). 
 On a selection of toy examples, which are simplifications of actual molecular data, we 
 use a supervised learning tool (PointNet) to predict order parameters arising in opinion dynamics and artificially generated point clouds of spherical and ellipsoidal shape. We also use unsupervised learning techniques (autoencoders and restricted Boltzmann machines) to extract new order parameters.
+
+
+PointNet for supervised learning was adapted from https://github.com/myx666/pointnet-in-pytorch/blob/master/pointnet.pytorch/dataset.py
